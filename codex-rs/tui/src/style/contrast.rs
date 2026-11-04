@@ -43,9 +43,9 @@ pub(super) fn selection_style(background: Option<(u8, u8, u8)>, level: StdoutCol
         return fallback;
     };
     let (preferred, alternate) = if is_light(background) {
-        (super::CHATGPT_BLUE_100, super::CHATGPT_BLUE_200)
+        (super::FORGED_COPPER_100, super::FORGED_COPPER_200)
     } else {
-        (super::CHATGPT_BLUE_200, super::CHATGPT_BLUE_100)
+        (super::FORGED_COPPER_200, super::FORGED_COPPER_100)
     };
     let mut fill = best_color_for_level(preferred, level);
     let resolve = |color| match color {

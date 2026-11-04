@@ -590,7 +590,7 @@ async fn command_center_new_read_failure_keeps_overview_and_does_not_start() -> 
             .find(|message| {
                 message.contains("Failed to")
                     || message.contains("Unable to check folder trust")
-                    || message.contains("Codex's background server is shutting down")
+                    || message.contains("Forged's background server is shutting down")
             })
             .expect("visible read error");
         if capability == HistoryCapabilities::ConfigReadFails {
@@ -934,7 +934,7 @@ async fn command_center_new_restores_blank_drafts_and_builtin_permissions() -> R
     );
     insta::assert_snapshot!(
         crate::chatwidget::tests::helpers::render_bottom_popup(&app.chat_widget, /*width*/ 80)
-            .lines().next().unwrap(), @"› Keep this unsent draft");
+            .lines().next().unwrap(), @"────────────────────────────────────────────────────────────────────────────────");
     // Seed persisted history without sending the user's draft. Subsequent navigation
     // must exercise thread/resume, including its restoration of permission settings.
     for id in [first, other] {

@@ -8,7 +8,7 @@ expression: "normalize_snapshot_paths(render_bottom_popup(&chat, 70))"
 › 1. Notify owner
 
   Press a number to choose
-
-› Ask Codex to do anything
-
+──────────────────────────────────────────────────────────────────────
+› What would you like to build?
+──────────────────────────────────────────────────────────────────────
   test-model-a default · /tmp/project

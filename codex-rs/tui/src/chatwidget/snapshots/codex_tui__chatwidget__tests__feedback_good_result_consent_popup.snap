@@ -2,9 +2,9 @@
 source: tui/src/chatwidget/tests/popups_and_settings.rs
 expression: popup
 ---
-      Upload logs?
-› As
-      The following files will be sent:
+────  Upload logs?                                                          ────
+› Wh
+────  The following files will be sent:                                     ────
   GP    • codex-logs.log
         • client-logs.txt (if available)
         • codex-doctor-report.json
@@ -14,8 +14,8 @@ expression: popup
         • codex-connectivity-diagnostics.txt
 
 
-    › 1. Yes  Share the current Codex session logs and diagnostics with the
-              team for troubleshooting
+    › 1. Yes  Share the current session logs and diagnostics with the team
+              for troubleshooting
       2. No
 
       enter select · esc back

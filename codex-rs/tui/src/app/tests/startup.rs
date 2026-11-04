@@ -126,7 +126,7 @@ async fn uncertain_windows_sandbox_setup_keeps_intent_and_input_locked() {
         if transport_error {
             insta::assert_snapshot!(rendered, @"■ Windows sandbox setup response was lost. Waiting for completion or reconnection.");
         } else {
-            insta::assert_snapshot!(rendered, @"■ Windows sandbox setup request timed out. Waiting for completion; restart Codex if it does not finish.");
+            insta::assert_snapshot!(rendered, @"■ Windows sandbox setup request timed out. Waiting for completion; restart Forged if it does not finish.");
         }
     }
 }

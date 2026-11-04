@@ -1,6 +1,5 @@
 ---
 source: tui/src/bottom_pane/chat_composer/status_surface_tests.rs
-assertion_line: 344
 expression: "format!(\"{buf:?}\")"
 ---
 Buffer {
@@ -10,9 +9,9 @@ Buffer {
         "› /memories  configure memory use and generation                                ",
         "  /mention   mention a file                                                     ",
         "  /mcp       list MCP tools; use /mcp verbose or /mcp login <name>              ",
-        "                                                                                ",
+        "────────────────────────────────────────────────────────────────────────────────",
         "› /m                                                                            ",
-        "                                                                                ",
+        "────────────────────────────────────────────────────────────────────────────────",
         "  model · high · fast                                                           ",
     ],
     styles: [

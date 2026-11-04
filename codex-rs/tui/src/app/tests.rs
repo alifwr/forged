@@ -3907,17 +3907,17 @@ async fn open_agent_picker_prompts_when_subagents_disabled() -> Result<()> {
     app.set_agent_picker_thread_visibility(archived_thread_id, AgentPickerThreadVisibility::Hidden);
 
     Box::pin(app.open_agent_picker(&mut app_server)).await;
-    assert_snapshot!(render_bottom_popup(&app.chat_widget, /*width*/ 80), @r###"
-          Enable subagents?
-    › As  Subagents are disabled in this TUI session.
-
+    assert_snapshot!(render_bottom_popup(&app.chat_widget, /*width*/ 80), @"
+    ────  Enable subagents?                                                     ────
+    › Wh  Subagents are disabled in this TUI session.
+    ────                                                                        ────
       gp
         › 1. Yes, enable  Save on the server for new threads without changing
                           this thread
           2. Not now      Keep subagents disabled
 
           enter select · esc back
-    "###);
+    ");
     Ok(())
 }
 
@@ -6978,7 +6978,7 @@ async fn ctrl_l_preserves_the_transcript_and_draft_after_clearing_the_screen() -
     let compact = transcript_composer::buffer_text(
         crate::custom_terminal::test_support::last_rendered_buffer(&tui.terminal),
     );
-    assert!(compact.contains("OpenAI Codex"));
+    assert!(compact.contains("Forged"));
     assert!(compact.contains("New exchange"));
     assert!(!compact.contains("Earlier exchange"));
     let ctrl_t = KeyEvent::new(KeyCode::Char('t'), KeyModifiers::CONTROL);

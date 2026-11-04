@@ -118,6 +118,25 @@ pub(crate) fn render_menu_surface(area: Rect, buf: &mut Buffer) -> Rect {
     Block::default()
         .style(user_message_style())
         .render(area, buf);
+    let visible = area.intersection(buf.area);
+    if visible.width > 0 && visible.height >= 3 {
+        let rule = "─".repeat(usize::from(visible.width));
+        let style = user_message_style().patch(crate::style::secondary_text_style());
+        buf.set_stringn(
+            visible.x,
+            visible.y,
+            &rule,
+            usize::from(visible.width),
+            style,
+        );
+        buf.set_stringn(
+            visible.x,
+            visible.bottom() - 1,
+            &rule,
+            usize::from(visible.width),
+            style,
+        );
+    }
     menu_surface_inset(area)
 }
 

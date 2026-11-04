@@ -7,9 +7,9 @@ activity:
 "                                                                                "
 "• Checking stop condition                                                       "
 "                                                                                "
-"                                                                                "
-"› Ask Codex to do anything                                                      "
-"                                                                                "
+"────────────────────────────────────────────────────────────────────────────────"
+"› What would you like to build?                                                 "
+"────────────────────────────────────────────────────────────────────────────────"
 "  GPT-5.6-Sol default · /tmp/project                                            "
 history:
 • Hook stopped

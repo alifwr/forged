@@ -9,11 +9,11 @@ expression: "render_bottom_popup(&app.chat_widget,\nwidth).replace(r\"C:\\cli-bu
 
 
 
-      Update daemon and exit Codex?
+      Update daemon and exit Forged?
       Install the latest public stable release. Restore production
       updates; keep your automatic-update setting.
       This may restart the daemon and interrupt active or queued work.
-      Codex exits to update in this terminal. Relaunch it afterward.
+      Forged exits to update in this terminal. Relaunch it afterward.
 
 
     › 1. Cancel

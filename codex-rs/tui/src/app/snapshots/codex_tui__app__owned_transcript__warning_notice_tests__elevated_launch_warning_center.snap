@@ -13,16 +13,16 @@ expression: screen(&tui)
 
 
 
-
+────────────────────────────────────────────────────────────────────────────────
   Warnings · 1 of 1 · Startup
 
   Running as administrator: shared background server disabled. To enable it,
-  restart Codex in a terminal without administrator permissions.
+  restart Forged in a terminal without administrator permissions.
 
 
 
 
 
 
-
+────────────────────────────────────────────────────────────────────────────────
   k keep & next · esc dismiss & close · ⌃o copy · ←/→ warning

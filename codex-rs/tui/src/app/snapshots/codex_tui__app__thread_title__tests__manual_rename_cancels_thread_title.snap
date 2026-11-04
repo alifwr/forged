@@ -1,8 +1,8 @@
 ---
 source: tui/src/app/thread_title_tests.rs
-assertion_line: 363
 expression: normalize_snapshot_paths(popup)
 ---
-› Ask Codex to do anything
-
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+› What would you like to build?
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
   gpt-5.2 default · /tmp/project · Keep this title · ← for agents

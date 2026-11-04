@@ -34,7 +34,7 @@ pub(super) fn render_stars(
             if x < occupied_until {
                 continue;
             }
-            if cell.symbol() != " " {
+            if cell.symbol() != " " && cell.symbol() != "─" {
                 occupied_until = x.saturating_add(cell.symbol().width() as u16);
                 continue;
             }

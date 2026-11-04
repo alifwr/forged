@@ -1,6 +1,5 @@
 ---
 source: tui/src/app/turn_tips_tests.rs
-assertion_line: 387
 expression: "crate::chatwidget::tests::helpers::normalize_snapshot_paths(screens.join(\"\\n\\n\"))"
 ---
 working=true, response rows=1, 80x12
@@ -11,17 +10,17 @@ Response row 0
 • Working (0s • esc to interrupt)
   └ Tip: Try /help.
 
-
-› Ask Codex to do anything
-
+────────────────────────────────────────────────────────────────────────────────
+› What would you like to build?
+────────────────────────────────────────────────────────────────────────────────
   gpt-test default · /tmp/project
   ? for shortcuts
 
 working=true, response rows=1, 80x6
 • Working (0s • esc to interrupt)
-
-› Ask Codex to do anything
-
+────────────────────────────────────────────────────────────────────────────────
+› What would you like to build?
+────────────────────────────────────────────────────────────────────────────────
   gpt-test default · /tmp/project
   ? for shortcuts
 
@@ -33,9 +32,9 @@ working=false, response rows=1, 80x12
 
   Worked for [duration] • [completion time]
 
-
-› Ask Codex to do anything
-
+────────────────────────────────────────────────────────────────────────────────
+› What would you like to build?
+────────────────────────────────────────────────────────────────────────────────
   gpt-test default · /tmp/project
   ? for shortcuts
 
@@ -59,9 +58,9 @@ Response row 0
 
 
 
-
-› Ask Codex to do anything
-
+────────────────────────────────────────────────────────────────────────────────
+› What would you like to build?
+────────────────────────────────────────────────────────────────────────────────
   gpt-test default · /tmp/project
   ? for shortcuts
 
@@ -85,9 +84,9 @@ Response row 0
 
 
                                                                Copying 5 chars…
-
-› Ask Codex to do anything
-
+────────────────────────────────────────────────────────────────────────────────
+› What would you like to build?
+────────────────────────────────────────────────────────────────────────────────
   gpt-test default · /tmp/project
   ? for shortcuts
 
@@ -99,9 +98,9 @@ working=false, response rows=30, 80x12
 
   Worked for [duration] • [completion time]
 
-
-› Ask Codex to do anything
-
+────────────────────────────────────────────────────────────────────────────────
+› What would you like to build?
+────────────────────────────────────────────────────────────────────────────────
   gpt-test default · /tmp/project
   ? for shortcuts
 
@@ -110,9 +109,9 @@ working=false, response rows=1, 80x9
 
   Worked for [duration] • [completion time]
 
-
-› Ask Codex to do anything
-
+────────────────────────────────────────────────────────────────────────────────
+› What would you like to build?
+────────────────────────────────────────────────────────────────────────────────
   gpt-test default · /tmp/project
   ? for shortcuts
 
@@ -122,9 +121,9 @@ working=false, response rows=1, 80x10
 
   Worked for [duration] • [completion time]
 
-
-› Ask Codex to do anything
-
+────────────────────────────────────────────────────────────────────────────────
+› What would you like to build?
+────────────────────────────────────────────────────────────────────────────────
   gpt-test default · /tmp/project
   ? for shortcuts
 
@@ -135,9 +134,9 @@ working=false, response rows=1, 80x11
 
   Worked for [duration] • [completion time]
 
-
-› Ask Codex to do anything
-
+────────────────────────────────────────────────────────────────────────────────
+› What would you like to build?
+────────────────────────────────────────────────────────────────────────────────
   gpt-test default · /tmp/project
   ? for shortcuts
 
@@ -149,14 +148,14 @@ working=false, response rows=1, 12x12
   for <1s •
   [completion time]
 
-
-› Ask Codex
-
+────────────
+› What woul
+────────────
   gpt-test …
   ? for shor
 
 working=false, response rows=1, 80x4
-
-› Ask Codex to do anything
-
+────────────────────────────────────────────────────────────────────────────────
+› What would you like to build?
+────────────────────────────────────────────────────────────────────────────────
   ? for shortcuts

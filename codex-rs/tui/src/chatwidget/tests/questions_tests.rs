@@ -853,9 +853,9 @@ async fn single_question_spacing_with_working_status() {
         .position(|line| line.trim() == "Only question?")
         .unwrap();
     assert!(rows[question - 2].contains("Queued follow-up inputs"));
-    assert!(rows[question - 1].is_empty());
+    assert!(rows[question - 1].chars().all(|ch| ch == '─'));
     assert_eq!(rows[question + 2].trim(), "A typed answer");
-    assert!(rows[question + 3].is_empty());
+    assert!(rows[question + 3].chars().all(|ch| ch == '─'));
     insta::assert_snapshot!("single_question_working_spacing", rendered);
 }
 

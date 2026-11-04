@@ -17,16 +17,16 @@ use ratatui::style::Color;
 use ratatui::style::Modifier;
 use ratatui::style::Style;
 
-const LIGHT_BG_ACCENT_RGB: (u8, u8, u8) = (28, 100, 200);
+const LIGHT_BG_ACCENT_RGB: (u8, u8, u8) = (147, 70, 35);
 
-/// ChatGPT Blue 100 (#A4CDFB), used for selection fills on light backgrounds.
-pub(crate) const CHATGPT_BLUE_100: (u8, u8, u8) = (164, 205, 251);
+/// Light copper, used for selection fills on light backgrounds.
+pub(crate) const FORGED_COPPER_100: (u8, u8, u8) = (243, 197, 157);
 
-/// ChatGPT Blue 200 (#63A8F8).
-pub(crate) const CHATGPT_BLUE_200: (u8, u8, u8) = (99, 168, 248);
+/// Copper.
+pub(crate) const FORGED_COPPER_200: (u8, u8, u8) = (220, 147, 96);
 
 /// Shared accent for picker selection backgrounds and transcript foreground emphasis.
-pub(crate) const UI_ACCENT: (u8, u8, u8) = CHATGPT_BLUE_200;
+pub(crate) const UI_ACCENT: (u8, u8, u8) = FORGED_COPPER_200;
 
 /// The result marker inherits the row fill, including the reverse-video selection fallback.
 pub(crate) fn task_marker(unread: bool, row: Style) -> ratatui::text::Span<'static> {

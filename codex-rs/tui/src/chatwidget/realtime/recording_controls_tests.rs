@@ -71,7 +71,7 @@ async fn voice_composer_preserves_normal_colors_across_microphone_states() {
                 .collect::<Vec<_>>()
                 .join("\n");
             insta::assert_snapshot!(rows, @"
-            0:
+            0: ───────────────────────────────────────────────
             1:  voice ● listening     f9 mute     /voice stop
             2:    mic ▁▁▁▁▁▁  codex ▁▁▁▁▁▁
             3:
@@ -135,7 +135,9 @@ async fn voice_preserves_the_normal_composer_prompt() {
     assert_eq!(prompt(&mut chat), Some('›'));
     chat.reset_realtime_conversation();
     assert_eq!(
-        render_bottom_popup(&chat, /*width*/ 80).chars().next(),
+        render_bottom_popup(&chat, /*width*/ 80)
+            .lines()
+            .find_map(|line| line.chars().next().filter(|ch| *ch == '›')),
         Some('›')
     );
 }

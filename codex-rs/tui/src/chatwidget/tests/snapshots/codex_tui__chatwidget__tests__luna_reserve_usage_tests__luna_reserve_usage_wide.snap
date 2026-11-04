@@ -2,7 +2,7 @@
 source: tui/src/chatwidget/tests/luna_reserve_usage_tests.rs
 expression: rendered
 ---
-
-› Ask Codex to do anything
-
+────────────────────────────────────────────────────────────────────────────────
+› What would you like to build?
+────────────────────────────────────────────────────────────────────────────────
   Luna Reserve default · /tmp/project

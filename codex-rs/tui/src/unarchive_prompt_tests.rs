@@ -35,13 +35,15 @@ fn resume_prompt_snapshot() {
         crate::resume_permissions::ResumePermissions::default(),
     ));
     insta::assert_snapshot!(render(&screen), @"
-    This conversation is archived
+    ────────────────────────────────────────────────────────────────────────────────
+      This conversation is archived
       019e72f4-e09a-70f2-b2c2-a153a57b8cc0
 
     › 1. Unarchive and resume
       2. Cancel
 
       enter continue · esc cancel
+    ────────────────────────────────────────────────────────────────────────────────
     ");
 }
 
@@ -55,13 +57,15 @@ fn fork_prompt_cancel_snapshot() {
         None
     );
     insta::assert_snapshot!(render(&screen), @"
-    This conversation is archived
+    ────────────────────────────────────────────────────────────────────────────────
+      This conversation is archived
       019e72f4-e09a-70f2-b2c2-a153a57b8cc0
 
       1. Unarchive and fork
     › 2. Cancel
 
       enter continue · esc cancel
+    ────────────────────────────────────────────────────────────────────────────────
     ");
     assert_eq!(
         screen.handle_key(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE)),

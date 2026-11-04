@@ -4935,6 +4935,24 @@ impl ChatComposer {
         let style = user_message_style();
         let background = composer_layout::background_rect(composer_rect, buf.area, options);
         Block::default().style(style).render(background, buf);
+        if background.width > 0 && background.height >= 3 {
+            let rule = "─".repeat(usize::from(background.width));
+            let rule_style = style.patch(crate::style::secondary_text_style());
+            buf.set_stringn(
+                background.x,
+                background.y,
+                &rule,
+                usize::from(background.width),
+                rule_style,
+            );
+            buf.set_stringn(
+                background.x,
+                background.bottom() - 1,
+                &rule,
+                usize::from(background.width),
+                rule_style,
+            );
+        }
         if let Some(previews) = options.image_previews {
             previews.render(
                 thumbnails,
@@ -5243,8 +5261,8 @@ mod tests {
         let spacing_row = row_to_string(hint_row_idx - 1);
         assert_eq!(
             spacing_row.trim(),
-            "",
-            "expected blank spacing row above hints but saw: {spacing_row:?}",
+            "─".repeat(usize::from(area.width)),
+            "expected a separator above hints but saw: {spacing_row:?}",
         );
     }
 
