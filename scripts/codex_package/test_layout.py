@@ -24,6 +24,58 @@ from codex_package.targets import default_target
 
 
 class PackageLayoutTest(unittest.TestCase):
+    def test_forged_package_contains_entrypoint_and_helpers(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            executable = root / "executable"
+            executable.write_text("#!/bin/sh\nexit 0\n")
+            executable.chmod(0o755)
+            spec = TARGET_SPECS["x86_64-unknown-linux-gnu"]
+            variant = PACKAGE_VARIANTS["forged"]
+            inputs = PackageInputs(
+                entrypoint_bin=executable,
+                code_mode_host_bin=executable,
+                exec_server_bin=executable,
+                rg_bin=executable,
+                bwrap_bin=executable,
+                codex_command_runner_bin=None,
+                codex_windows_sandbox_setup_bin=None,
+            )
+            package = root / "package"
+            package.mkdir()
+            build_package_dir(package, "0.0.0", variant, spec, inputs)
+            validate_package_dir(package, variant, spec)
+            self.assertTrue((package / "bin/forged").is_file())
+            self.assertTrue((package / "bin/codex-code-mode-host").is_file())
+            self.assertTrue((package / "bin/codex-exec-server").is_file())
+            self.assertTrue((package / "codex-resources/bwrap").is_file())
+            self.assertTrue((package / "codex-path/rg").is_file())
+
+    def test_forged_package_builder_accepts_prebuilt_inputs(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            executable = root / "executable"
+            executable.write_text("#!/bin/sh\nexit 0\n")
+            executable.chmod(0o755)
+            package = root / "package"
+            command = [
+                sys.executable,
+                str(Path(__file__).resolve().parents[1] / "build_codex_package.py"),
+                "--variant", "forged",
+                "--target", "x86_64-unknown-linux-gnu",
+                "--package-dir", str(package),
+                "--strip", "none",
+            ]
+            for flag in (
+                "--entrypoint-bin", "--code-mode-host-bin", "--exec-server-bin",
+                "--rg-bin", "--bwrap-bin",
+            ):
+                command.extend([flag, str(executable)])
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue((package / "bin/forged").is_file())
+            self.assertTrue((package / "codex-path/rg").is_file())
+
     @unittest.skipIf(sys.platform == "win32", "MSVC symbols are separate PDB files")
     def test_strip_policy_preserves_inputs_and_runs_packaged_executables(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -159,7 +211,7 @@ int main(void) {
                     self.assertEqual(hashlib.sha256(actual[name]).hexdigest(), digest)
 
     def test_macos_package_preserves_prebuilt_resource_binaries(self) -> None:
-        for variant_name in ("codex", "codex-app-server"):
+        for variant_name in ("forged", "codex", "codex-app-server"):
             for target in ("aarch64-apple-darwin", "x86_64-apple-darwin"):
                 with self.subTest(variant=variant_name, target=target):
                     with tempfile.TemporaryDirectory() as temp_dir:

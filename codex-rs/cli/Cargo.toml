@@ -4,7 +4,11 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 build = "build.rs"
-default-run = "codex"
+default-run = "forged"
+
+[[bin]]
+name = "forged"
+path = "src/bin/forged.rs"
 
 [[bin]]
 name = "codex"

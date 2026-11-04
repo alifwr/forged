@@ -53,6 +53,11 @@ class PackageInputs:
 
 
 PACKAGE_VARIANTS: dict[str, PackageVariant] = {
+    "forged": PackageVariant(
+        name="forged",
+        cargo_bin="forged",
+        executable_stem="forged",
+    ),
     "codex": PackageVariant(
         name="codex",
         cargo_bin="codex",

@@ -43,7 +43,7 @@ upstream brings the latest changes into Forged while retaining its own changes.
 
    ```bash
    cd codex-rs
-   cargo build --bin codex
+   cargo build --bin forged
    cargo test -p codex-tui
    cd ..
    ```
