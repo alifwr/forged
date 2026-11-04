@@ -1,0 +1,74 @@
+name: Forged Windows release
+
+on:
+  push:
+    tags:
+      - 'forged-v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows-x64:
+    runs-on: windows-2022
+    timeout-minutes: 360
+    env:
+      CODEX_REPO_ROOT: ${{ github.workspace }}
+      CARGO_BUILD_JOBS: '1'
+      CARGO_PROFILE_RELEASE_LTO: 'false'
+      CARGO_PROFILE_RELEASE_OPT_LEVEL: '1'
+      CARGO_PROFILE_RELEASE_DEBUG: '0'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@e081816240890017053eacbb1bdf337761dc5582 # 1.95.0
+      - name: Validate release tag
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF_TYPE -ne 'tag' -or $env:GITHUB_REF_NAME -notmatch '^forged-v[0-9]+\.[0-9]+\.[0-9]+$') {
+            throw 'Select a forged-vMAJOR.MINOR.PATCH tag to publish a release.'
+          }
+      - name: Build Windows package
+        shell: pwsh
+        run: |
+          $version = $env:GITHUB_REF_NAME.Substring('forged-v'.Length)
+          python scripts/build_codex_package.py --variant forged --target x86_64-pc-windows-msvc `
+            --package-version $version --cargo-profile release --package-dir "$env:RUNNER_TEMP\forged-package" `
+            --archive-output "$env:RUNNER_TEMP\forged-windows-x86_64.zip"
+          if ($LASTEXITCODE -ne 0) { throw 'Package build failed.' }
+          & "$env:RUNNER_TEMP\forged-package\bin\forged.exe" --version
+          if ($LASTEXITCODE -ne 0) { throw 'The packaged executable failed its smoke test.' }
+          $archive = "$env:RUNNER_TEMP\forged-windows-x86_64.zip"
+          $hash = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          [IO.File]::WriteAllText("$archive.sha256", "$hash  forged-windows-x86_64.zip`n", [Text.Encoding]::ASCII)
+      - name: Verify the installer on Windows
+        shell: pwsh
+        run: |
+          $env:FORGED_DATA_DIR = "$env:RUNNER_TEMP\forged-install-test"
+          function Invoke-WebRequest {
+            param([switch]$UseBasicParsing, [string]$Uri, [string]$OutFile)
+            $name = if ($Uri.EndsWith('.sha256')) { 'forged-windows-x86_64.zip.sha256' } else { 'forged-windows-x86_64.zip' }
+            Copy-Item -LiteralPath (Join-Path $env:RUNNER_TEMP $name) -Destination $OutFile
+          }
+          & .\scripts\install-forged-release.ps1
+          & "$env:FORGED_DATA_DIR\current\bin\forged.exe" --version
+          if ($LASTEXITCODE -ne 0) { throw 'Installed executable failed its smoke test.' }
+          & .\scripts\install-forged-release.ps1
+          if (-not (Get-ChildItem "$env:FORGED_DATA_DIR\releases" -Filter 'previous-*')) {
+            throw 'Updating did not preserve the prior package.'
+          }
+      - name: Publish release
+        shell: pwsh
+        run: |
+          gh release create $env:GITHUB_REF_NAME `
+            "$env:RUNNER_TEMP\forged-windows-x86_64.zip" `
+            "$env:RUNNER_TEMP\forged-windows-x86_64.zip.sha256" `
+            --repo $env:GITHUB_REPOSITORY --verify-tag --title "Forged $env:GITHUB_REF_NAME" `
+            --notes 'Prebuilt Windows x64 package for Forged.'
+          if ($LASTEXITCODE -ne 0) { throw 'Could not publish the GitHub release.' }

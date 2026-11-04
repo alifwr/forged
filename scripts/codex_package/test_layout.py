@@ -103,6 +103,34 @@ class PackageLayoutTest(unittest.TestCase):
             self.assertTrue((package / "codex-resources/codex-command-runner.exe").is_file())
             self.assertTrue((package / "codex-resources/codex-windows-sandbox-setup.exe").is_file())
 
+    def test_forged_windows_package_builder_creates_release_archive(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            executable = root / "executable.exe"
+            executable.write_bytes(b"test executable")
+            executable.chmod(0o755)
+            package = root / "package"
+            archive = root / "forged-windows-x86_64.zip"
+            command = [
+                sys.executable,
+                str(Path(__file__).resolve().parents[1] / "build_codex_package.py"),
+                "--variant", "forged",
+                "--target", "x86_64-pc-windows-msvc",
+                "--package-dir", str(package),
+                "--archive-output", str(archive),
+                "--strip", "none",
+            ]
+            for flag in (
+                "--entrypoint-bin", "--code-mode-host-bin", "--exec-server-bin",
+                "--rg-bin", "--codex-command-runner-bin",
+                "--codex-windows-sandbox-setup-bin",
+            ):
+                command.extend([flag, str(executable)])
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(archive.is_file())
+            self.assertTrue((package / "bin/forged.exe").is_file())
+
     @unittest.skipIf(sys.platform == "win32", "MSVC symbols are separate PDB files")
     def test_strip_policy_preserves_inputs_and_runs_packaged_executables(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

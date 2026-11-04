@@ -49,6 +49,13 @@ user PATH, and preserves previous packages on updates. It uses the same
 `FORGED_SOURCE_DIR` to build a local checkout, `FORGED_DATA_DIR` to change the
 installation directory, or `CARGO_BUILD_JOBS` to change build parallelism.
 
+The prebuilt Windows installer is being prepared in
+`scripts/install-forged-release.ps1`. The `Forged Windows release` workflow
+builds an x64 package when a `forged-vMAJOR.MINOR.PATCH` tag is pushed, verifies
+the installer on Windows, and publishes the package and its SHA-256 checksum as
+a GitHub Release. The normal installer remains source-based until a verified
+release is available.
+
 ## Run from source
 
 Install the Rust toolchain, then from the repository root run:
