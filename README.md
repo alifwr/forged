@@ -33,6 +33,22 @@ prebuilt release. Set `FORGED_INSTALL_DIR` to change the command directory or
 `FORGED_SOURCE_DIR` to build a specific local checkout. Re-running it installs
 a new build without changing existing Codex data.
 
+### Windows
+
+In PowerShell, with Git, Python 3.10 or later, Rust's Windows MSVC toolchain,
+and Visual Studio C++ Build Tools installed, run:
+
+```powershell
+irm https://raw.githubusercontent.com/alifwr/forged/main/scripts/install-forged.ps1 | iex
+```
+
+The installer builds from source with one Cargo job by default. It installs the
+package under `%LOCALAPPDATA%\Programs\Forged`, adds its `bin` directory to your
+user PATH, and preserves previous packages on updates. It uses the same
+`%USERPROFILE%\.codex` directory (or `CODEX_HOME`) as the upstream CLI. Set
+`FORGED_SOURCE_DIR` to build a local checkout, `FORGED_DATA_DIR` to change the
+installation directory, or `CARGO_BUILD_JOBS` to change build parallelism.
+
 ## Run from source
 
 Install the Rust toolchain, then from the repository root run:
