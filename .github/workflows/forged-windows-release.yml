@@ -15,12 +15,17 @@ jobs:
     timeout-minutes: 360
     env:
       CODEX_REPO_ROOT: ${{ github.workspace }}
+      CARGO_HOME: D:\c
+      CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
       CARGO_BUILD_JOBS: '1'
       CARGO_PROFILE_RELEASE_LTO: 'false'
       CARGO_PROFILE_RELEASE_OPT_LEVEL: '1'
       CARGO_PROFILE_RELEASE_DEBUG: '0'
       GH_TOKEN: ${{ github.token }}
     steps:
+      - name: Enable long Git paths
+        shell: pwsh
+        run: git config --global core.longpaths true
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
