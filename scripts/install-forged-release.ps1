@@ -29,7 +29,7 @@
         }
         try { $metadata = Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json }
         catch { throw "Refusing to replace an invalid package at $path" }
-        if ($metadata.variant -ne 'forged' -or $metadata.entrypoint -ne 'bin/forged.exe') {
+        if ($metadata.variant -ne 'forged' -or $metadata.entrypoint -notin @('bin/forged.exe', 'bin/codex.exe')) {
             throw "Refusing to replace an unrelated package at $path"
         }
         return $true
@@ -83,6 +83,14 @@
             $packageMetadata.target -ne 'x86_64-pc-windows-msvc') {
             throw 'The downloaded package metadata does not describe Forged for Windows x64.'
         }
+
+        # The daemon stages a canonical codex.exe and treats version 0.0.0 as a local, pinned build.
+        Copy-Item -LiteralPath (Join-Path $package 'bin\forged.exe') -Destination (Join-Path $package 'bin\codex.exe') -Force
+        $packageMetadata | Add-Member -NotePropertyName forgedReleaseVersion -NotePropertyValue $packageMetadata.version -Force
+        $packageMetadata.entrypoint = 'bin/codex.exe'
+        $packageMetadata.version = '0.0.0'
+        $metadataJson = $packageMetadata | ConvertTo-Json -Depth 20
+        [IO.File]::WriteAllText((Join-Path $package 'codex-package.json'), $metadataJson, (New-Object Text.UTF8Encoding $false))
 
         $backup = $null
         if (Test-ManagedPackage $current) {

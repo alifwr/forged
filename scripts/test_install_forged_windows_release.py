@@ -55,7 +55,7 @@ class ForgedWindowsReleaseInstallerTest(unittest.TestCase):
             "codex-resources/codex-command-runner.exe": "runner",
             "codex-resources/codex-windows-sandbox-setup.exe": "sandbox",
             "codex-package.json": json.dumps({
-                "variant": "forged", "entrypoint": "bin/forged.exe",
+                "variant": "forged", "entrypoint": "bin/forged.exe", "version": "0.1.1",
                 "target": "x86_64-pc-windows-msvc",
             }),
         }
@@ -80,6 +80,11 @@ class ForgedWindowsReleaseInstallerTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         executable = self.data / "current/bin/forged.exe"
         self.assertEqual(executable.read_text(), "one")
+        self.assertEqual((self.data / "current/bin/codex.exe").read_text(), "one")
+        metadata = json.loads((self.data / "current/codex-package.json").read_text(encoding="utf-8-sig"))
+        self.assertEqual(metadata["entrypoint"], "bin/codex.exe")
+        self.assertEqual(metadata["version"], "0.0.0")
+        self.assertEqual(metadata["forgedReleaseVersion"], "0.1.1")
         self.make_package(version="two")
         result = self.run_installer()
         self.assertEqual(result.returncode, 0, result.stderr)
