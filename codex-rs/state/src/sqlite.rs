@@ -11,6 +11,7 @@
 )]
 
 use crate::DbTelemetry;
+use crate::migrations::compatible_line_ending_migrator;
 use crate::migrations::repair_legacy_recency_migration_version;
 use crate::runtime::recovery::RuntimeDbInitError;
 use crate::telemetry;
@@ -419,7 +420,9 @@ impl SqliteConfig {
             // A current schema needs only a read lock, including when opened on NFS.
             retry_on_busy(|| async {
                 let mut transaction = pool.begin().await?;
-                if let Err(error) = migrator
+                let compatible_migrator =
+                    compatible_line_ending_migrator(&mut transaction, migrator).await?;
+                if let Err(error) = compatible_migrator
                     .run_direct(/*target*/ None, &mut *transaction, /*skip*/ false)
                     .await
                 {

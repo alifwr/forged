@@ -1,18 +1,123 @@
 use codex_utils_absolute_path::test_support::PathExt;
 use pretty_assertions::assert_eq;
+use sqlx::AssertSqlSafe;
 use sqlx::Connection;
 use sqlx::Row;
+use sqlx::SqlSafeStr;
 use sqlx::migrate::Migration;
 use sqlx::migrate::Migrator;
 use std::borrow::Cow;
 
 use super::STATE_MIGRATOR;
 use super::THREAD_HISTORY_MIGRATOR;
+use super::compatible_line_ending_migrator;
 use super::repair_legacy_recency_migration_version;
 use crate::PINNED_THREAD_SECTION_ID;
 use crate::PINNED_THREAD_SECTION_NAME;
 
 const CUSTOM_THREAD_SECTION_ID: &str = "01984de2-8f74-7c91-a3b2-5c5e937cf317";
+
+#[tokio::test]
+async fn line_ending_compatibility_preserves_applied_checksums_and_rejects_other_changes() {
+    let pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect("sqlite::memory:")
+        .await
+        .expect("in-memory database should open");
+    let original = migrator_through(1);
+    let first = &original.migrations[0];
+    let alternate = Migration::new(
+        first.version,
+        first.description.clone(),
+        first.migration_type,
+        AssertSqlSafe(
+            first
+                .sql
+                .as_str()
+                .replace("\r\n", "\n")
+                .replace('\n', "\r\n"),
+        )
+        .into_sql_str(),
+        first.no_tx,
+    );
+    let mut windows = migrator_through(1);
+    windows.migrations = Cow::Owned(vec![alternate.clone()]);
+    windows
+        .run(&pool)
+        .await
+        .expect("Windows migration should apply");
+
+    let mut connection = pool
+        .acquire()
+        .await
+        .expect("connection should be available");
+    let compatible = compatible_line_ending_migrator(&mut connection, &migrator_through(2))
+        .await
+        .expect("checksums should be read");
+    drop(connection);
+    compatible
+        .run(&pool)
+        .await
+        .expect("equivalent migration should be accepted");
+    let stored: Vec<u8> =
+        sqlx::query_scalar("SELECT checksum FROM _sqlx_migrations WHERE version = 1")
+            .fetch_one(&pool)
+            .await
+            .expect("checksum should exist");
+    assert_eq!(stored.as_slice(), alternate.checksum.as_ref());
+
+    let unix_pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect("sqlite::memory:")
+        .await
+        .expect("in-memory database should open");
+    let unix = Migration::new(
+        first.version,
+        first.description.clone(),
+        first.migration_type,
+        AssertSqlSafe(first.sql.as_str().replace("\r\n", "\n")).into_sql_str(),
+        first.no_tx,
+    );
+    assert_ne!(unix.checksum, alternate.checksum);
+    let mut unix_migrator = migrator_through(1);
+    unix_migrator.migrations = Cow::Owned(vec![unix.clone()]);
+    unix_migrator
+        .run(&unix_pool)
+        .await
+        .expect("Unix migration should apply");
+    let mut connection = unix_pool
+        .acquire()
+        .await
+        .expect("connection should be available");
+    let compatible = compatible_line_ending_migrator(&mut connection, &windows)
+        .await
+        .expect("checksums should be read");
+    drop(connection);
+    compatible
+        .run(&unix_pool)
+        .await
+        .expect("Unix checksum should be accepted by Windows build");
+    let stored: Vec<u8> =
+        sqlx::query_scalar("SELECT checksum FROM _sqlx_migrations WHERE version = 1")
+            .fetch_one(&unix_pool)
+            .await
+            .expect("checksum should exist");
+    assert_eq!(stored.as_slice(), unix.checksum.as_ref());
+
+    sqlx::query("UPDATE _sqlx_migrations SET checksum = X'00' WHERE version = 1")
+        .execute(&pool)
+        .await
+        .expect("test checksum should change");
+    let mut connection = pool
+        .acquire()
+        .await
+        .expect("connection should be available");
+    let incompatible = compatible_line_ending_migrator(&mut connection, &migrator_through(2))
+        .await
+        .expect("checksums should be read");
+    drop(connection);
+    assert!(incompatible.run(&pool).await.is_err());
+}
 
 fn migrator_through(version: i64) -> Migrator {
     Migrator {

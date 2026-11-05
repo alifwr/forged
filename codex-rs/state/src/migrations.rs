@@ -1,7 +1,11 @@
 use std::borrow::Cow;
 
 use crate::sqlite::SqliteWriteQueryExt;
+use sqlx::AssertSqlSafe;
+use sqlx::SqlSafeStr;
+use sqlx::migrate::Migration;
 use sqlx::migrate::Migrator;
+use sqlx_sqlite::SqliteConnection;
 use sqlx_sqlite::SqlitePool;
 
 pub(crate) static STATE_MIGRATOR: Migrator = sqlx_macros::migrate!("./migrations");
@@ -27,6 +31,61 @@ fn runtime_migrator(base: &'static Migrator) -> Migrator {
         table_name: base.table_name.clone(),
         create_schemas: base.create_schemas.clone(),
     }
+}
+
+/// Accept checksums made from the same embedded SQL with platform line endings.
+pub(crate) async fn compatible_line_ending_migrator(
+    connection: &mut SqliteConnection,
+    base: &Migrator,
+) -> Result<Migrator, sqlx::Error> {
+    let exists = sqlx::query_scalar::<_, i64>(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = '_sqlx_migrations'",
+    )
+    .fetch_optional(&mut *connection)
+    .await?
+    .is_some();
+    let mut migrations = base.migrations.to_vec();
+    if exists {
+        let applied = sqlx::query_as::<_, (i64, Vec<u8>)>(
+            "SELECT version, checksum FROM _sqlx_migrations WHERE success = 1",
+        )
+        .fetch_all(&mut *connection)
+        .await?;
+        for migration in &mut migrations {
+            let Some((_, checksum)) = applied
+                .iter()
+                .find(|(version, _)| *version == migration.version)
+            else {
+                continue;
+            };
+            if checksum.as_slice() == migration.checksum.as_ref() {
+                continue;
+            }
+            let normalized = migration.sql.as_str().replace("\r\n", "\n");
+            let variants = [normalized.clone(), normalized.replace('\n', "\r\n")];
+            for sql in variants {
+                let alternate = Migration::new(
+                    migration.version,
+                    migration.description.clone(),
+                    migration.migration_type,
+                    AssertSqlSafe(sql).into_sql_str(),
+                    migration.no_tx,
+                );
+                if checksum.as_slice() == alternate.checksum.as_ref() {
+                    migration.checksum = alternate.checksum;
+                    break;
+                }
+            }
+        }
+    }
+    Ok(Migrator {
+        migrations: Cow::Owned(migrations),
+        ignore_missing: base.ignore_missing,
+        locking: base.locking,
+        no_tx: base.no_tx,
+        table_name: base.table_name.clone(),
+        create_schemas: base.create_schemas.clone(),
+    })
 }
 
 pub(crate) fn runtime_state_migrator() -> Migrator {
