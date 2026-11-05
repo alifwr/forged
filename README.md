@@ -35,26 +35,44 @@ a new build without changing existing Codex data.
 
 ### Windows
 
-In PowerShell, with Git, Python 3.10 or later, Rust's Windows MSVC toolchain,
-and Visual Studio C++ Build Tools installed, run:
+On Windows x64, run in PowerShell:
 
 ```powershell
 irm https://raw.githubusercontent.com/alifwr/forged/main/scripts/install-forged.ps1 | iex
 ```
 
-The installer builds from source with one Cargo job by default. It installs the
-package under `%LOCALAPPDATA%\Programs\Forged`, adds its `bin` directory to your
-user PATH, and preserves previous packages on updates. It uses the same
+The installer downloads and verifies the latest prebuilt package, so Git,
+Python, Rust, and C++ build tools are not required. It installs under
+`%LOCALAPPDATA%\Programs\Forged`, adds its `bin` directory to your user PATH,
+and preserves previous packages on updates. It uses the same
 `%USERPROFILE%\.codex` directory (or `CODEX_HOME`) as the upstream CLI. Set
-`FORGED_SOURCE_DIR` to build a local checkout, `FORGED_DATA_DIR` to change the
-installation directory, or `CARGO_BUILD_JOBS` to change build parallelism.
+`FORGED_DATA_DIR` to change the installation directory. Windows ARM64 packages
+are not currently available.
 
-The prebuilt Windows installer is being prepared in
-`scripts/install-forged-release.ps1`. The `Forged Windows release` workflow
-builds an x64 package when a `forged-vMAJOR.MINOR.PATCH` tag is pushed, verifies
-the installer on Windows, and publishes the package and its SHA-256 checksum as
-a GitHub Release. The normal installer remains source-based until a verified
-release is available.
+To build from source instead, use `scripts/install-forged-source.ps1` with Git,
+Python 3.10 or later, Rust's Windows MSVC toolchain, and Visual Studio C++ Build
+Tools. Set `FORGED_SOURCE_DIR` to build a local checkout or `CARGO_BUILD_JOBS`
+to change build parallelism. The Linux and macOS installer builds from source.
+
+The `Forged Windows release` workflow can also build and test a Windows x64
+package when manually started for a `forged-vMAJOR.MINOR.PATCH` tag. It is not
+started automatically when tags are pushed.
+
+To build the Windows x64 package on Linux, install the Windows MSVC Rust target,
+LLVM, CMake, Ninja, and `cargo-xwin` first. From the repository root, run:
+
+```sh
+CODEX_REPO_ROOT="$PWD" CARGO_BUILD_JOBS=1 \
+  CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_OPT_LEVEL=1 \
+  CARGO_PROFILE_RELEASE_DEBUG=0 python3 scripts/build_codex_package.py \
+  --variant forged --target x86_64-pc-windows-msvc --package-version 0.1.1 \
+  --cargo-profile release --cargo "$PWD/scripts/forged-cargo-xwin.sh" \
+  --package-dir "$PWD/dist/forged-windows" \
+  --archive-output "$PWD/dist/forged-windows-x86_64.zip"
+```
+
+Choose the package version for the release being built. Test the resulting
+package on Windows before publishing it.
 
 ## Run from source
 

@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 
-INSTALLER = Path(__file__).with_name("install-forged.ps1")
+INSTALLER = Path(__file__).with_name("install-forged-source.ps1")
 POWERSHELL = os.environ.get("FORGED_TEST_PWSH") or shutil.which("pwsh")
 
 

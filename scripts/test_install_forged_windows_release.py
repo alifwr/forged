@@ -9,7 +9,7 @@ import unittest
 import zipfile
 
 
-INSTALLER = Path(__file__).with_name("install-forged-release.ps1")
+INSTALLER = Path(__file__).with_name("install-forged.ps1")
 POWERSHELL = os.environ.get("FORGED_TEST_PWSH") or shutil.which("pwsh")
 
 

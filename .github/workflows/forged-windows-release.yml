@@ -1,9 +1,6 @@
 name: Forged Windows release
 
 on:
-  push:
-    tags:
-      - 'forged-v*'
   workflow_dispatch:
 
 permissions:
