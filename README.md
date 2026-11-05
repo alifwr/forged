@@ -40,19 +40,19 @@ On Windows x64, choose the command for your terminal.
 PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/alifwr/forged/main/scripts/install-forged.ps1 | iex
+irm https://github.com/alifwr/forged/releases/latest/download/install-forged.ps1 | iex
 ```
 
 Command Prompt (cmd):
 
 ```cmd
-powershell -NoProfile -Command "irm 'https://raw.githubusercontent.com/alifwr/forged/main/scripts/install-forged.ps1' | iex"
+powershell -NoProfile -Command "irm 'https://github.com/alifwr/forged/releases/latest/download/install-forged.ps1' | iex"
 ```
 
 Git Bash:
 
 ```bash
-powershell.exe -NoProfile -Command "irm 'https://raw.githubusercontent.com/alifwr/forged/main/scripts/install-forged.ps1' | iex"
+powershell.exe -NoProfile -Command "irm 'https://github.com/alifwr/forged/releases/latest/download/install-forged.ps1' | iex"
 ```
 
 After installation, open a new terminal and run `forged`.
