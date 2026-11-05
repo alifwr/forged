@@ -119,6 +119,54 @@ async fn line_ending_compatibility_preserves_applied_checksums_and_rejects_other
     assert!(incompatible.run(&pool).await.is_err());
 }
 
+#[tokio::test]
+async fn state_database_opens_with_windows_migration_checksum() {
+    let temp = tempfile::tempdir().expect("temporary directory should be created");
+    let sqlite = crate::SqliteConfig::new_for_testing(temp.path().abs());
+    let path = sqlite.state_db_path();
+    let pool = sqlite
+        .open_read_write_pool(&path)
+        .await
+        .expect("state database should open");
+    let first = &STATE_MIGRATOR.migrations[0];
+    let windows_migration = Migration::new(
+        first.version,
+        first.description.clone(),
+        first.migration_type,
+        AssertSqlSafe(
+            first
+                .sql
+                .as_str()
+                .replace("\r\n", "\n")
+                .replace('\n', "\r\n"),
+        )
+        .into_sql_str(),
+        first.no_tx,
+    );
+    let mut windows = migrator_through(1);
+    windows.migrations = Cow::Owned(vec![windows_migration.clone()]);
+    windows
+        .run(&pool)
+        .await
+        .expect("Windows migration should apply");
+    pool.close().await;
+
+    let pool = sqlite
+        .open_state_db(
+            &super::runtime_state_migrator(),
+            /*telemetry_override*/ None,
+        )
+        .await
+        .expect("runtime should open a Windows database");
+    let checksum: Vec<u8> =
+        sqlx::query_scalar("SELECT checksum FROM _sqlx_migrations WHERE version = 1")
+            .fetch_one(&pool)
+            .await
+            .expect("first migration should exist");
+    assert_eq!(checksum.as_slice(), windows_migration.checksum.as_ref());
+    pool.close().await;
+}
+
 fn migrator_through(version: i64) -> Migrator {
     Migrator {
         migrations: Cow::Owned(
