@@ -30,6 +30,13 @@ class ForgedWindowsReleaseInstallerTest(unittest.TestCase):
     $source = if ($Uri.EndsWith('.sha256')) { $env:FORGED_TEST_CHECKSUM } else { $env:FORGED_TEST_ARCHIVE }
     Copy-Item -LiteralPath $source -Destination $OutFile
 }
+function Move-Item {
+    param([string]$LiteralPath, [string]$Destination)
+    if ($env:FORGED_TEST_FAIL_REPLACEMENT -and (Split-Path -Leaf $LiteralPath) -eq 'package') {
+        throw 'simulated replacement failure'
+    }
+    Microsoft.PowerShell.Management\\Move-Item -LiteralPath $LiteralPath -Destination $Destination
+}
 & $env:FORGED_TEST_INSTALLER
 """
         )
@@ -75,7 +82,7 @@ class ForgedWindowsReleaseInstallerTest(unittest.TestCase):
             env={**self.env, **extra_env}, capture_output=True, text=True,
         )
 
-    def test_installs_and_preserves_previous_package(self):
+    def test_installs_and_replaces_previous_package(self):
         result = self.run_installer()
         self.assertEqual(result.returncode, 0, result.stderr)
         executable = self.data / "current/bin/forged.exe"
@@ -90,7 +97,7 @@ class ForgedWindowsReleaseInstallerTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(executable.read_text(), "two")
         backups = list((self.data / "releases").glob("previous-*"))
-        self.assertEqual((backups[0] / "bin/forged.exe").read_text(), "one")
+        self.assertEqual(backups, [])
 
     def test_rejects_bad_checksum_without_replacing_install(self):
         self.assertEqual(self.run_installer().returncode, 0)
@@ -98,6 +105,13 @@ class ForgedWindowsReleaseInstallerTest(unittest.TestCase):
         result = self.run_installer()
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("checksum", result.stderr)
+        self.assertEqual((self.data / "current/bin/forged.exe").read_text(), "one")
+
+    def test_restores_previous_package_if_replacement_fails(self):
+        self.assertEqual(self.run_installer().returncode, 0)
+        self.make_package(version="two")
+        result = self.run_installer(FORGED_TEST_FAIL_REPLACEMENT="1")
+        self.assertNotEqual(result.returncode, 0)
         self.assertEqual((self.data / "current/bin/forged.exe").read_text(), "one")
 
     def test_rejects_missing_helper_and_unsafe_paths(self):

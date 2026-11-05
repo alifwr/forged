@@ -106,6 +106,10 @@
             }
             throw
         }
+        if ($backup) {
+            try { Remove-Item -LiteralPath $backup -Recurse -Force -ErrorAction Stop }
+            catch { Write-Warning "Could not remove the previous package at $backup" }
+        }
         $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
         $entries = @($userPath -split ';' | Where-Object { $_ })
         if (-not ($entries | Where-Object { $_.TrimEnd('\') -ieq $binDir.TrimEnd('\') })) {

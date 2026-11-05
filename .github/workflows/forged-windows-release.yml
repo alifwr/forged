@@ -65,8 +65,8 @@ jobs:
           & "$env:FORGED_DATA_DIR\current\bin\forged.exe" --version
           if ($LASTEXITCODE -ne 0) { throw 'Installed executable failed its smoke test.' }
           & .\scripts\install-forged-release.ps1
-          if (-not (Get-ChildItem "$env:FORGED_DATA_DIR\releases" -Filter 'previous-*')) {
-            throw 'Updating did not preserve the prior package.'
+          if (Get-ChildItem "$env:FORGED_DATA_DIR\releases" -Filter 'previous-*') {
+            throw 'Updating did not remove the previous package.'
           }
       - name: Publish release
         shell: pwsh

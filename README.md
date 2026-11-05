@@ -60,7 +60,7 @@ After installation, open a new terminal and run `forged`.
 The installer downloads and verifies the latest prebuilt package, so Git,
 Python, Rust, and C++ build tools are not required. It installs under
 `%LOCALAPPDATA%\Programs\Forged`, adds its `bin` directory to your user PATH,
-and preserves previous packages on updates. It uses the same
+and removes the previous package after a successful update. It uses the same
 `%USERPROFILE%\.codex` directory (or `CODEX_HOME`) as the upstream CLI. Set
 `FORGED_DATA_DIR` to change the installation directory. Windows ARM64 packages
 are not currently available.
