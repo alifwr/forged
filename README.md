@@ -35,11 +35,27 @@ a new build without changing existing Codex data.
 
 ### Windows
 
-On Windows x64, run in PowerShell:
+On Windows x64, choose the command for your terminal.
+
+PowerShell:
 
 ```powershell
 irm https://raw.githubusercontent.com/alifwr/forged/main/scripts/install-forged.ps1 | iex
 ```
+
+Command Prompt (cmd):
+
+```cmd
+powershell -NoProfile -Command "irm 'https://raw.githubusercontent.com/alifwr/forged/main/scripts/install-forged.ps1' | iex"
+```
+
+Git Bash:
+
+```bash
+powershell.exe -NoProfile -Command "irm 'https://raw.githubusercontent.com/alifwr/forged/main/scripts/install-forged.ps1' | iex"
+```
+
+After installation, open a new terminal and run `forged`.
 
 The installer downloads and verifies the latest prebuilt package, so Git,
 Python, Rust, and C++ build tools are not required. It installs under
