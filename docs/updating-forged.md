@@ -39,7 +39,14 @@ upstream brings the latest changes into Forged while retaining its own changes.
    Repeat `git add` for each resolved file. To abandon an unfinished merge and
    return to the state before it, run `git merge --abort`.
 
-5. Build and run relevant tests. For example:
+5. Review `FORGED_MODEL_CATALOG_COMPAT_VERSION` in
+   `codex-rs/models-manager/src/lib.rs`. Development builds have workspace
+   version `0.0.0`, so Forged uses this separately tracked upstream version for
+   model catalog requests and cache identity. Update it only to an upstream
+   release whose functionality is present in the merged code; do not use the
+   Forged release number. Verify model discovery after changing it.
+
+   Build and run relevant tests. For example:
 
    ```bash
    cd codex-rs

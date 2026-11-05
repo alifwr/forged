@@ -104,6 +104,7 @@ struct TestModelsEndpoint {
     etag: Option<String>,
     fetch_count: AtomicUsize,
     observed_proxy_policy: Mutex<Option<OutboundProxyPolicy>>,
+    observed_client_version: Mutex<Option<String>>,
 }
 
 #[derive(Debug, Default)]
@@ -300,10 +301,12 @@ impl ModelsEndpointClient for TestModelsEndpoint {
 
     fn list_models<'a>(
         &'a self,
-        _client_version: &'a str,
+        client_version: &'a str,
         http_client_factory: HttpClientFactory,
     ) -> ModelsEndpointFuture<'a, CoreResult<ModelsEndpointResponse>> {
         Box::pin(async move {
+            *self.observed_client_version.lock().expect("version lock") =
+                Some(client_version.to_string());
             *self
                 .observed_proxy_policy
                 .lock()
@@ -312,6 +315,26 @@ impl ModelsEndpointClient for TestModelsEndpoint {
             TestModelsEndpoint::list_models(self).await
         })
     }
+}
+
+#[tokio::test]
+async fn catalog_fetch_uses_a_real_client_compatibility_version() {
+    let endpoint = TestModelsEndpoint::new(vec![vec![remote_model(
+        "model", "Model", /*priority*/ 0,
+    )]]);
+    let home = tempdir().unwrap();
+    let manager = openai_manager_for_tests(home.path().into(), endpoint.clone());
+    manager
+        .raw_model_catalog(RefreshStrategy::Online, DEFAULT_HTTP_CLIENT_FACTORY)
+        .await;
+    let version = endpoint
+        .observed_client_version
+        .lock()
+        .unwrap()
+        .clone()
+        .unwrap();
+    assert_eq!(version, crate::client_version_to_whole());
+    assert_ne!(version, "0.0.0");
 }
 
 fn openai_manager_for_tests(
